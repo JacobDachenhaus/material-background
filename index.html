@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Tahoma, Geneva, sans-serif;
+            font-size: 10pt;
+            background-color: #f5f5f5;
+        }
+        a {
+            color: #24A0ED;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .page {
+            width: 500px;
+            margin: 0 auto;
+        }
+        header {
+            margin: 12px 0;
+        }
+        .heading {
+            display: block;
+            font-size: 16pt;
+            font-weight: bold;
+        }
+        .sub-heading {
+            display: block;
+            font-size: 12pt;
+        }
+        #a, #out {
+            width: 100%;
+            height: 300px;
+        }
+        #a {
+            border: 1px solid #000;
+        }
+        .form-el {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 0;
+        }
+        .form-el:not(:last-of-type) {
+            border-bottom: 1px solid #a9a9a9;
+        }
+        .label {
+            font-weight: bold;
+        }
+    </style>
+    <style id="styles"></style>
+</head>
+<body>
+
+    <div class="page-container">
+
+        <div class="page">
+
+            <header>
+                <span class="heading">Material Generator</span>
+                <span class="sub-heading">by <a href="https://github.com/jdachenhaus">jdachenhaus</a></span>
+            </header>
+
+            <div id="a" class="material material-custom"></div>
+
+            <form id="opts" action="javascript:void(0)">
+                <div class="form-el">
+                    <span class="label">Background</span>
+                    <input type="file" accept="image/*" name="background" />
+                </div>
+                <div class="form-el">
+                    <span class="label">Background Scale</span>
+                    <input type="range" min="100" max="500" value="400" name="scale" />
+                </div>
+                <div class="form-el">
+                    <span class="label">Saturation Boost</span>
+                    <input type="range" min="100" max="500" value="200" name="saturation" />
+                </div>
+                <div class="form-el">
+                    <span class="label">Blur Radius</span>
+                    <input type="range" min="0" max="38" value="8" name="blurRadius" />
+                </div>
+                <div class="form-el">
+                    <span class="label">Overlay</span>
+                    <input type="file" accept="image/*" name="overlay" />
+                </div>
+                <div class="form-el">
+                    <span class="label">Overlay Color</span>
+                    <input type="color" value="#1e1e1e" name="colorHex" />
+                </div>
+                <div class="form-el">
+                    <span class="label">Overlay Opacity</span>
+                    <input type="range" min="0" max="100" value="50" name="colorAlpha" />
+                </div>
+                <textarea id="out" readonly></textarea>
+            </form>
+    
+        </div>
+
+    </div>
+    
+    <script>
+
+        const styles = document.getElementById('styles')
+        const opts = document.getElementById('opts')
+        const out = document.getElementById('out')
+    
+        const a1 = document.getElementById('a')
+
+        let a2 = {
+            background: '',
+            scale: '400%',
+            saturation: '200%',
+            blurRadius: '8px',
+            overlay: '',
+            colorRGB: [30, 30, 30],
+            colorAlpha: 0.5
+        }
+
+        function gen() {
+            return [
+                '.material {',
+                    '\tposition: relative;',
+                    '\toverflow: hidden;',
+                    '\tbackground-blend-mode: exclusion;',
+                '}',
+                '.material::before {',
+                    '\tcontent: "";',
+                    '\tdisplay: block;',
+                    '\twidth: 100%;',
+                    '\theight: 100%;',
+                    '\tbackground-position: center;',
+                    '\tz-index: -1;',
+                '}',
+                '.material-custom {',
+                    `\tbackground: rgba(${a2.colorRGB.join(',')}, ${a2.colorAlpha}) url(${a2.overlay});`,
+                '}',
+                '.material-custom::before {',
+                    '\tposition: absolute;',
+                    `\ttop: -${a2.blurRadius};`,
+                    `\tleft: -${a2.blurRadius};`,
+                    `\tpadding: ${a2.blurRadius};`,
+                    `\tbackground-image: url(${a2.background});`,
+                    `\tbackground-size: ${a2.scale};`,
+                    `\tfilter: saturate(${a2.saturation}) blur(${a2.blurRadius});`,
+                '}'
+            ].join('\n')
+        }
+
+        function render() {
+            styles.innerHTML = out.innerHTML = gen()
+        }
+
+        function readFile(file, onLoad) {
+            let reader = new FileReader()
+            reader.readAsDataURL(file)
+            reader.onload = ev => onLoad(ev.target.result)
+        }
+
+        opts.onchange = function(ev) {
+
+            let t = ev.target
+
+            if (t.type == 'file') {
+
+                if (t.files.length > 1) {
+                    alert('Too many files selected!')
+                    return
+                }
+
+                readFile(t.files[0], result => {
+                    (t.name == 'background')
+                        ? a2.background = result
+                        : a2.overlay = result
+                    render()
+                })
+
+                return
+
+            }
+
+            switch (t.name) {
+                case 'scale':
+                    a2.scale = t.value + '%'
+                    break
+                case 'saturation':
+                    a2.saturation = t.value + '%'
+                    break
+                case 'blurRadius':
+                    a2.blurRadius = t.value + 'px'
+                    break
+                case 'colorHex':
+                    a2.colorRGB = t.value.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => '#' + r + r + g + g + b + b).substring(1).match(/.{2}/g).map(x => parseInt(x, 16))
+                    break
+                case 'colorAlpha':
+                    a2.colorAlpha = parseInt(t.value) / 100
+                    break
+            }
+
+            render()
+
+        }
+
+        window.onload = function() {
+            opts.reset()
+            render()
+        }
+    
+    </script>
+
+</body>
+</html>
