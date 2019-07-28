@@ -1,1 +1,1 @@
-# material-gen
+# Material Generator
