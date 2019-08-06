@@ -68,7 +68,9 @@
                 <span class="sub-heading">by <a href="https://github.com/jdachenhaus">jdachenhaus</a></span>
             </header>
 
-            <div id="a" class="material material-custom"></div>
+            <div id="a" class="material material-x">
+                <div class="material-background material-background-x"></div>
+            </div>
 
             <form id="opts" action="javascript:void(0)">
                 <div class="form-el">
@@ -133,19 +135,20 @@
                     '\toverflow: hidden;',
                     '\tbackground-blend-mode: exclusion;',
                 '}',
-                '.material::before {',
+                '.material-x {',
+                    `\tbackground-color: rgba(${a2.colorRGB.join(', ')}, ${a2.colorAlpha});`,
+                    `\tbackground-image: url(${useNames ? a2.overlayName : a2.overlay});`,
+                '}',
+                '.material-background {',
                     '\tcontent: "";',
-                    '\tdisplay: block;',
+                    '\tposition: absolute;',
                     '\twidth: 100%;',
                     '\theight: 100%;',
+                    '\tdisplay: block;',
                     '\tbackground-position: center;',
                     '\tz-index: -1;',
                 '}',
-                '.material-custom {',
-                    `\tbackground: rgba(${a2.colorRGB.join(',')}, ${a2.colorAlpha}) url(${useNames ? a2.overlayName : a2.overlay});`,
-                '}',
-                '.material-custom::before {',
-                    '\tposition: absolute;',
+                '.material-background-x {',
                     `\ttop: -${a2.blurRadius};`,
                     `\tleft: -${a2.blurRadius};`,
                     `\tpadding: ${a2.blurRadius};`,
@@ -159,7 +162,6 @@
         function render() {
             styles.innerHTML = gen()
             out.innerHTML = gen(true)
-            // change above line to 'out.innerHTML = gen()' to embed image
         }
 
         function readFile(file, onLoad) {
