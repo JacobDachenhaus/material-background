@@ -116,15 +116,17 @@
 
         let a2 = {
             background: '',
+            backgroundName: '',
             scale: '400%',
             saturation: '200%',
             blurRadius: '8px',
             overlay: '',
+            overlayName: '',
             colorRGB: [30, 30, 30],
             colorAlpha: 0.5
         }
 
-        function gen() {
+        function gen(useNames = false) {
             return [
                 '.material {',
                     '\tposition: relative;',
@@ -140,14 +142,14 @@
                     '\tz-index: -1;',
                 '}',
                 '.material-custom {',
-                    `\tbackground: rgba(${a2.colorRGB.join(',')}, ${a2.colorAlpha}) url(${a2.overlay});`,
+                    `\tbackground: rgba(${a2.colorRGB.join(',')}, ${a2.colorAlpha}) url(${useNames ? a2.overlayName : a2.overlay});`,
                 '}',
                 '.material-custom::before {',
                     '\tposition: absolute;',
                     `\ttop: -${a2.blurRadius};`,
                     `\tleft: -${a2.blurRadius};`,
                     `\tpadding: ${a2.blurRadius};`,
-                    `\tbackground-image: url(${a2.background});`,
+                    `\tbackground-image: url(${useNames ? a2.backgroundName : a2.background});`,
                     `\tbackground-size: ${a2.scale};`,
                     `\tfilter: saturate(${a2.saturation}) blur(${a2.blurRadius});`,
                 '}'
@@ -155,7 +157,9 @@
         }
 
         function render() {
-            styles.innerHTML = out.innerHTML = gen()
+            styles.innerHTML = gen()
+            out.innerHTML = gen(true)
+            // change above line to 'out.innerHTML = gen()' to embed image
         }
 
         function readFile(file, onLoad) {
@@ -170,10 +174,26 @@
 
             if (t.type == 'file') {
 
+                if (t.files.length == 0) {
+                    return
+                }
+
                 if (t.files.length > 1) {
                     alert('Too many files selected!')
                     return
                 }
+
+                let filename = ''
+
+                try {
+                    filename = `'${t.files[0].name}'`
+                } catch (err) {
+                    console.error(err)
+                }
+
+                (t.name == 'background')
+                    ? a2.backgroundName = filename
+                    : a2.overlayName = filename
 
                 readFile(t.files[0], result => {
                     (t.name == 'background')
