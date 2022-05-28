@@ -24,6 +24,6 @@ Replace 'x' with an identifier for the material.
 ```
 
 ## Screenshots
-![Example 1](https://i.ibb.co/V3Km9cf/image.png)
-![Example 2](https://i.ibb.co/7NwSYTq/image.png)
-![Example 3](https://i.ibb.co/H29JxRm/image.png)
+![Example 1](/screenshots/image-01.png)
+![Example 2](/screenshots/image-02.png)
+![Example 3](/screenshots/image-03.png)
